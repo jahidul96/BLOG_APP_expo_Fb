@@ -62,6 +62,30 @@ export const getSingleBlog = (setSingleBlog, id) => {
   });
 };
 
+export const FavoriteBlog = async (data) => {
+  await addDoc(
+    collection(db, "Favorite", auth.currentUser.uid, "MyFavorite"),
+    data
+  );
+};
+
+export const deleteFavoriteBlog = async (id) => {
+  await deleteDoc(doc(db, "Favorite", auth.currentUser.uid, "MyFavorite", id));
+};
+
+export const getMYFavoritesBlog = (setAllFavorites) => {
+  const cRef = collection(db, "Favorite", auth.currentUser.uid, "MyFavorite");
+  const q = query(cRef, orderBy("createdAt", "desc"));
+  onSnapshot(q, (querySnapshot) => {
+    let blogs = [];
+    querySnapshot.forEach((doc) => {
+      let data = { value: doc.data(), id: doc.id };
+      blogs.push(data);
+    });
+    setAllFavorites(blogs);
+  });
+};
+
 export const viewCounter = async (clickVal, id) => {
   await setDoc(doc(db, "Allblogs", id), { click: clickVal }, { merge: true });
 };

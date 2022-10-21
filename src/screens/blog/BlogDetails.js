@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   ImageBackground,
   KeyboardAvoidingView,
@@ -24,12 +25,15 @@ import {
 } from "../../component/Reuse/Reuse";
 import {
   commentPost,
+  deleteFavoriteBlog,
+  FavoriteBlog,
   getSingleBlog,
   likePost,
 } from "../../../firebase/fbFirestore/fbFirestore";
 import Context from "../../../context/Context";
 import { Timestamp } from "firebase/firestore";
 import { Tag } from "../../component/Tag";
+import FavoriteContext from "../../../context/FavoriteContext";
 
 const BlogDetails = ({ navigation, route }) => {
   const { id, value } = route.params;
@@ -37,17 +41,53 @@ const BlogDetails = ({ navigation, route }) => {
   const [loadding, setLoading] = useState(true);
   const { loggedUser } = useContext(Context);
   const [comment, setComment] = useState();
-  const [allComments, setAllComments] = useState(value.comments);
-  const scrollViewRef = useRef();
+  const { favoriteBlogs } = useContext(FavoriteContext);
+  const [spinner, setSpinner] = useState(false);
 
   const isLiked = blog?.likes?.filter((s) => s.likedBy == loggedUser?.email);
+  const isAlreadyFavorite = favoriteBlogs.filter(
+    (favBlog) => favBlog.value.postId == id
+  );
 
-  // console.log("value", value);
+  // console.log("isAlreadyFavorite", isAlreadyFavorite.length);
+
+  // console.log("blog", blog);
 
   useEffect(() => {
     getSingleBlog(setSingleBlog, id);
-    setLoading(false);
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
   }, []);
+
+  const favData = {
+    postId: id,
+    postedBy: value.postedBy,
+    description: value.description,
+    featuredImg: value.featuredImg,
+    tags: value.tags,
+    createdAt: Timestamp.fromDate(new Date()),
+  };
+
+  const addToFavorite = () => {
+    setSpinner(true);
+    if (isAlreadyFavorite.length > 0) {
+      deleteFavoriteBlog(isAlreadyFavorite[0].id)
+        .then(() => {
+          Alert.alert("REMOVED FROM FAVORITE'S!");
+          setSpinner(false);
+        })
+        .catch((err) => {
+          setSpinner(false);
+          Alert.alert("SOMETHING WENT WRONG!");
+          console.log(err.message);
+        });
+    } else {
+      FavoriteBlog(favData);
+      setSpinner(false);
+      return Alert.alert("ADDED TO FAVORITE!");
+    }
+  };
 
   const _likePost = (data) => {
     if (isLiked.length == 0) {
@@ -69,14 +109,14 @@ const BlogDetails = ({ navigation, route }) => {
       return Alert.alert("WRITE A COMMENT!");
     }
     let val = [
-      ...allComments,
+      ...blog?.comments,
       {
         postedAt: Timestamp.fromDate(new Date()),
         comment,
         commentedBy: loggedUser.username,
       },
     ];
-    setAllComments(val);
+    // setAllComments(val);
 
     commentPost(val, id);
     setComment("");
@@ -89,86 +129,103 @@ const BlogDetails = ({ navigation, route }) => {
   };
   return (
     <View style={styles.root}>
-      {loadding && <LoadingComp loadercolor={COLOR.lightBlue} />}
-      <ImageBackground
-        source={{ uri: blog?.featuredImg }}
-        style={styles.imgStyle}
-        blurRadius={2}
-      >
-        <View style={styles.topContainer}>
-          <AppBar color={COLOR.white} navigation={navigation} />
-          <TouchableOpacity onPress={() => _likePost(blog)}>
-            <Fontisto
-              name="heart"
-              size={20}
-              color={isLiked?.length == 0 ? COLOR.white : COLOR.red}
-            />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.profileContainer}>
-          <ProfileComponent
-            extraColorStyle={styles.extraColorStyle}
-            onPress={seeProfile}
-            userData={blog?.postedBy}
-          />
-          <TouchableOpacity>
-            <Fontisto name="favorite" size={22} color={COLOR.lightBlue} />
-          </TouchableOpacity>
-        </View>
-      </ImageBackground>
-      {/* likes comment and share */}
-      <View style={styles.countMainContainer}>
-        <CountComp text={blog?.likes?.length} name="heart" />
-        <CountComp text={blog?.comments?.length} name="message" />
-        <CountComp text={blog?.click} name="eye" />
-      </View>
-      <View
-        style={{
-          paddingHorizontal: 15,
-        }}
-      >
-        <Tag tags={blog?.tags} />
-      </View>
-
-      <ScrollView style={styles.bottomContentWrapper}>
-        <View style={styles.descContainer}>
+      {loadding ? (
+        <LoadingComp loadercolor={COLOR.lightBlue} text="LoadingBLOG..." />
+      ) : (
+        <>
+          {spinner && <LoadingComp loadercolor={COLOR.red} />}
+          <ImageBackground
+            source={{ uri: blog?.featuredImg }}
+            style={styles.imgStyle}
+          >
+            <View style={styles.topContainer}>
+              <AppBar color={COLOR.red} navigation={navigation} />
+              <TouchableOpacity
+                style={styles.likeContainer}
+                onPress={() => _likePost(blog)}
+              >
+                <Fontisto
+                  name="heart"
+                  size={18}
+                  color={isLiked?.length == 0 ? COLOR.white : COLOR.red}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.profileContainer}>
+              <ProfileComponent
+                extraColorStyle={styles.extraColorStyle}
+                onPress={seeProfile}
+                userData={blog?.postedBy}
+              />
+              <TouchableOpacity
+                style={[styles.likeContainer, { marginTop: 0 }]}
+                onPress={addToFavorite}
+              >
+                <Fontisto
+                  name="favorite"
+                  size={20}
+                  color={isAlreadyFavorite.length > 0 ? COLOR.red : COLOR.white}
+                />
+              </TouchableOpacity>
+            </View>
+          </ImageBackground>
+          {/* likes comment and share */}
+          <View style={styles.countMainContainer}>
+            <CountComp text={blog?.likes?.length} name="heart" />
+            <CountComp text={blog?.comments?.length} name="message" />
+            <CountComp text={blog?.click} name="eye" />
+          </View>
           <View
             style={{
               paddingHorizontal: 15,
             }}
           >
-            <Text style={styles.descText}>{blog?.description}</Text>
+            <Tag tags={value?.tags} />
           </View>
-        </View>
 
-        {/* comment comp */}
-
-        <View style={styles.commentContainer}>
-          {blog?.comments?.length > 0 ? (
-            blog?.comments.map((commentValue, index) => (
-              <Comments key={index} commentData={commentValue} />
-            ))
-          ) : (
-            <View>
-              <Text style={styles.noCommentText}>No comment Till now...</Text>
+          <ScrollView style={styles.bottomContentWrapper}>
+            <View style={styles.descContainer}>
+              <View
+                style={{
+                  paddingHorizontal: 15,
+                }}
+              >
+                <Text style={styles.descText}>{value?.description}</Text>
+              </View>
             </View>
-          )}
-        </View>
-        <View style={styles.commentWriteWrapper} behavior="height">
-          <Input
-            placeholder="your comment"
-            extraStyle={styles.extraInputStyle}
-            multiline
-            setValue={setComment}
-            value={comment}
-          />
-          <ButtonComp
-            text="Add"
-            extraStyle={styles.extraButtonStyle}
-            onPress={_commentOnPost}
-          />
-        </View>
-      </ScrollView>
+
+            {/* comment comp */}
+
+            <View style={styles.commentContainer}>
+              {blog?.comments?.length > 0 ? (
+                blog?.comments.map((commentValue, index) => (
+                  <Comments key={index} commentData={commentValue} />
+                ))
+              ) : (
+                <View>
+                  <Text style={styles.noCommentText}>
+                    No comment Till now...
+                  </Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.commentWriteWrapper} behavior="height">
+              <Input
+                placeholder="your comment"
+                extraStyle={styles.extraInputStyle}
+                multiline
+                setValue={setComment}
+                value={comment}
+              />
+              <ButtonComp
+                text="Add"
+                extraStyle={styles.extraButtonStyle}
+                onPress={_commentOnPost}
+              />
+            </View>
+          </ScrollView>
+        </>
+      )}
     </View>
   );
 };
@@ -214,6 +271,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 15,
   },
+  likeContainer: {
+    backgroundColor: COLOR.darkGray,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 2,
+    borderRadius: 100,
+    marginTop: 10,
+  },
   profileContainer: {
     width: Width,
     height: 60,
@@ -221,6 +288,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+
   extraColorStyle: {
     color: COLOR.white,
     elevation: 100,
@@ -285,13 +353,14 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     backgroundColor: COLOR.gray,
     flex: 1,
-    padding: 7,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
     borderRadius: 5,
   },
   name: {
     fontFamily: "Poppins-Bold",
-    fontSize: 12,
-    marginBottom: 2,
+    color: COLOR.orangeRed,
+    fontSize: 11,
   },
   commentText: {
     fontFamily: "Poppins-Regular",

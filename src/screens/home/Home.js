@@ -18,31 +18,42 @@ import Feather from "react-native-vector-icons/Feather";
 import {
   getAllBlogs,
   getCurrentUser,
+  getMYFavoritesBlog,
 } from "../../../firebase/fbFirestore/fbFirestore";
 import Context from "../../../context/Context";
 import { LoadingComp } from "../../component/Reuse/Reuse";
+import FavoriteContext from "../../../context/FavoriteContext";
 
 const Home = ({ navigation }) => {
   const { loggedUser, setLoggedUser } = useContext(Context);
   const [loading, setLoading] = useState(true);
   const [allBlogs, setAllBlogs] = useState([]);
+  const { setFavoriteBlogs } = useContext(FavoriteContext);
 
   const goToAccount = () => {
     navigation.navigate("Account");
   };
 
   useEffect(() => {
-    getCurrentUser()
-      .then((user) => {
-        setLoggedUser(user);
-        getAllBlogs(setAllBlogs);
-        setLoading(false);
-        // console.log(user);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const unsubscribe = navigation.addListener("focus", () => {
+      getCurrentUser()
+        .then((user) => {
+          setLoggedUser(user);
+          getAllBlogs(setAllBlogs);
+          getMYFavoritesBlog(setFavoriteBlogs);
+          setTimeout(() => {
+            setLoading(false);
+          }, 2000);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
+
+    return unsubscribe;
   }, []);
+
+  // console.log("favoriteBlog", favoriteBlog);
 
   return (
     <SafeAreaView style={homeStyles.root}>

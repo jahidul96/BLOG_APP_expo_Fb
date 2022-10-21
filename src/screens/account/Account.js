@@ -160,10 +160,11 @@ const Account = ({ navigation }) => {
           onPress={() => navigation.navigate("PostBlog")}
         />
         <AccountBtnComp
-          text="Favorite"
+          text="Favorites"
           icon={
             <Feather name="chevron-right" size={22} color={COLOR.lightBlue} />
           }
+          onPress={() => navigation.navigate("Favorites")}
         />
         <AccountBtnComp
           text="Password & Security"

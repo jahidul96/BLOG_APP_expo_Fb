@@ -14,7 +14,8 @@ import BlogDetails from "./src/screens/blog/BlogDetails";
 import Account from "./src/screens/account/Account";
 import Profile from "./src/screens/profile/Profile";
 import PostBlog from "./src/screens/blog/PostBlog";
-import BlogComment from "./src/screens/blog/BlogComment";
+import Favorites from "./src/screens/favorite/Favorites";
+import FavoriteContext from "./context/FavoriteContext";
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +24,7 @@ const App = () => {
 
   const [authUser, setAuthUser] = useState(null);
   const [loggedUser, setLoggedUser] = useState(null);
+  const [favoriteBlogs, setFavoriteBlogs] = useState(null);
 
   useEffect(() => {
     async function prepare() {
@@ -62,24 +64,27 @@ const App = () => {
   return (
     <Context.Provider value={{ loggedUser, setLoggedUser }}>
       <AuthContext.Provider value={{ authUser, setAuthUser }}>
-        <NavigationContainer onLayout={onLayoutRootView}>
-          {authUser ? (
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="Home" component={Home} />
-              <Stack.Screen name="BlogDetails" component={BlogDetails} />
-              <Stack.Screen name="ResetPassword" component={ResetPassword} />
-              <Stack.Screen name="Account" component={Account} />
-              <Stack.Screen name="Profile" component={Profile} />
-              <Stack.Screen name="PostBlog" component={PostBlog} />
-            </Stack.Navigator>
-          ) : (
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="Register" component={Register} />
-              <Stack.Screen name="Login" component={Login} />
-              <Stack.Screen name="ResetPassword" component={ResetPassword} />
-            </Stack.Navigator>
-          )}
-        </NavigationContainer>
+        <FavoriteContext.Provider value={{ favoriteBlogs, setFavoriteBlogs }}>
+          <NavigationContainer onLayout={onLayoutRootView}>
+            {authUser ? (
+              <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="Home" component={Home} />
+                <Stack.Screen name="BlogDetails" component={BlogDetails} />
+                <Stack.Screen name="ResetPassword" component={ResetPassword} />
+                <Stack.Screen name="Account" component={Account} />
+                <Stack.Screen name="Profile" component={Profile} />
+                <Stack.Screen name="PostBlog" component={PostBlog} />
+                <Stack.Screen name="Favorites" component={Favorites} />
+              </Stack.Navigator>
+            ) : (
+              <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="Register" component={Register} />
+                <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen name="ResetPassword" component={ResetPassword} />
+              </Stack.Navigator>
+            )}
+          </NavigationContainer>
+        </FavoriteContext.Provider>
       </AuthContext.Provider>
     </Context.Provider>
   );
