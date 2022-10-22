@@ -26,6 +26,12 @@ export const getCurrentUser = async () => {
   }
   return user;
 };
+export const getBlogWriterProfile = async (id, setBlogerProfile) => {
+  onSnapshot(doc(db, "Users", id), (doc) => {
+    setBlogerProfile(doc.data());
+    // console.log("blogerData", doc.data());
+  });
+};
 
 export const addUserToFB = async (info, id) => {
   await setDoc(doc(db, "Users", id), info);
@@ -53,6 +59,32 @@ export const getAllBlogs = (setAllBlogs) => {
       blogs.push(data);
     });
     setAllBlogs(blogs);
+  });
+};
+
+export const getTagMatchBlog = (setTagsMatchBlogs, tag) => {
+  const cRef = collection(db, "Allblogs");
+  const q = query(cRef, where("tags", "array-contains", tag));
+  onSnapshot(q, (querySnapshot) => {
+    let blogs = [];
+    querySnapshot.forEach((doc) => {
+      let data = { value: doc.data(), id: doc.id };
+      blogs.push(data);
+    });
+    setTagsMatchBlogs(blogs);
+  });
+};
+
+export const deleteFromFb = async (id, collectionname) => {
+  await deleteDoc(doc(db, collectionname, id));
+};
+
+export const deleteGroupAllPost = async (id) => {
+  const q = query(collection(db, "Allblogs"), where("myId", "==", id));
+  const querySnapshot = await getDocs(q);
+
+  querySnapshot.forEach((doc) => {
+    deleteFromFb(doc.id, "Allblogs");
   });
 };
 
@@ -115,6 +147,29 @@ export const getMYFavoritesBlog = (setAllFavorites) => {
 
 export const viewCounter = async (clickVal, id) => {
   await setDoc(doc(db, "Allblogs", id), { click: clickVal }, { merge: true });
+};
+
+export const followUser = async (followed, id) => {
+  await updateDoc(
+    doc(db, "Users", id),
+    { followers: followed },
+    { merge: true }
+  );
+};
+export const NotificationFunc = async (notifications, id) => {
+  await updateDoc(
+    doc(db, "Users", id),
+    { notifications: notifications },
+    { merge: true }
+  );
+};
+
+export const NotifyChange = async (id, notifyBoolean) => {
+  await setDoc(
+    doc(db, "Users", id),
+    { newNotification: notifyBoolean },
+    { merge: true }
+  );
 };
 
 export const likePost = async (liked, id) => {

@@ -45,7 +45,9 @@ const ResetPassword = ({ navigation }) => {
         <Image source={{ uri: img }} style={authStyles.imgStyle} />
       </View>
       <Input placeholder="Email" setValue={setEmail} />
-      {loading ? null : <ButtonComp text="LOGIN" onPress={resetPassword} />}
+      {loading ? null : (
+        <ButtonComp text="RESETPASSWORD" onPress={resetPassword} />
+      )}
     </View>
   );
 };

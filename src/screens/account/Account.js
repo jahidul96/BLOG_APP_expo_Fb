@@ -17,20 +17,19 @@ import {
 } from "../../component/Reuse/Reuse";
 import { accountStyles } from "./AccountStyle";
 import Feather from "react-native-vector-icons/Feather";
-import { doc, deleteDoc } from "firebase/firestore";
 import { deleteUser, signOut } from "firebase/auth";
 
 import * as ImagePicker from "expo-image-picker";
 
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import Context, { AuthContext } from "../../../context/Context";
 import { auth, storage } from "../../../firebase/firebase";
 import COLOR from "../../COLOR/COLOR";
 import {
   addProfilePic,
+  deleteFromFb,
   getCurrentUser,
   uploadFileToStorage,
 } from "../../../firebase/fbFirestore/fbFirestore";
+import Context, { AuthContext } from "../../../context/Context";
 
 const img = "http://cdn.onlinewebfonts.com/svg/img_550782.png";
 
@@ -66,7 +65,6 @@ const Account = ({ navigation }) => {
 
   const uploadProfilePic = async () => {
     setUploading(true);
-
     uploadFileToStorage(image).then((url) => {
       addProfilePic(url)
         .then(() => {
@@ -85,29 +83,6 @@ const Account = ({ navigation }) => {
   };
 
   // console.log("loggedUser", loggedUser);
-
-  const deleteAccount = () => {
-    // setUploading(true);
-    // const collectionname = "Users";
-    // deleteFromFb(auth.currentUser.uid, collectionname)
-    //   .then((res) => {
-    //     deleteUser(auth.currentUser)
-    //       .then(() => {
-    //         setUploading(false);
-    //         console.log("user deleted");
-    //         setAuthUser(null);
-    //         navigation.navigate("Register");
-    //       })
-    //       .catch((error) => {
-    //         setUploading(false);
-    //         Alert.alert("something went wrong!");
-    //       });
-    //   })
-    //   .catch((err) => {
-    //     setUploading(false);
-    //     Alert.alert("something went wrong!");
-    //   });
-  };
 
   return (
     <SafeAreaView style={{ backgroundColor: COLOR.white, flex: 1 }}>
@@ -176,7 +151,6 @@ const Account = ({ navigation }) => {
           onPress={() => navigation.navigate("ResetPassword")}
         />
         <View style={{ marginTop: 15 }}>
-          <NormalBtn text="Delete My Account" onPress={deleteAccount} />
           <NormalBtn text="Log Out" onPress={logout} />
         </View>
       </ScrollView>

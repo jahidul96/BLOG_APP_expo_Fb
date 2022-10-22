@@ -97,6 +97,11 @@ const PostBlog = () => {
     if (tags.length > 3) {
       return Alert.alert("MAXIMUM THREE TAGS!");
     }
+    if (desc.length < 200) {
+      return Alert.alert(
+        "BLOG DETAIL'S NEED TO BE AT LEAST 200 CHARACTER LONG!"
+      );
+    }
     setUploading(true);
 
     let blog = {

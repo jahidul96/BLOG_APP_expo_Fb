@@ -4,7 +4,11 @@ import COLOR from "../COLOR/COLOR";
 export const Tag = ({ tags, onPress }) => (
   <View style={styles.tagContainer}>
     {tags.map((tag, i) => (
-      <TouchableOpacity key={i} style={styles.tagItem} onPress={onPress}>
+      <TouchableOpacity
+        key={i}
+        style={styles.tagItem}
+        onPress={() => onPress(tag)}
+      >
         <Text style={[styles.tabitemText, styles.tagText]}>{tag}</Text>
       </TouchableOpacity>
     ))}

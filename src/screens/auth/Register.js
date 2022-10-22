@@ -73,6 +73,9 @@ const Register = ({ navigation }) => {
       username,
       categorie,
       profileImg: "",
+      followers: [],
+      newNotification: false,
+      notifications: [],
     };
 
     fbUserRegister(email, password)

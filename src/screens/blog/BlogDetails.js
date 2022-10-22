@@ -27,8 +27,11 @@ import {
   commentPost,
   deleteFavoriteBlog,
   FavoriteBlog,
+  getBlogWriterProfile,
   getSingleBlog,
   likePost,
+  NotificationFunc,
+  NotifyChange,
 } from "../../../firebase/fbFirestore/fbFirestore";
 import Context from "../../../context/Context";
 import { Timestamp } from "firebase/firestore";
@@ -43,9 +46,11 @@ const BlogDetails = ({ navigation, route }) => {
   const [comment, setComment] = useState();
   const { favoriteBlogs } = useContext(FavoriteContext);
   const [spinner, setSpinner] = useState(false);
+  const [blogerProfile, setBlogerProfile] = useState({});
   const { postedBy } = value;
 
   const isLiked = blog?.likes?.filter((s) => s.likedBy == loggedUser?.email);
+
   const isAlreadyFavorite = favoriteBlogs.filter(
     (favBlog) => favBlog.value.postId == id
   );
@@ -54,8 +59,11 @@ const BlogDetails = ({ navigation, route }) => {
 
   // console.log("blog", blog);
 
+  // console.log("blogerProfile", blogerProfile);
+
   useEffect(() => {
     getSingleBlog(setSingleBlog, id);
+    getBlogWriterProfile(value.myId, setBlogerProfile);
     setTimeout(() => {
       setLoading(false);
     }, 2000);
@@ -98,7 +106,18 @@ const BlogDetails = ({ navigation, route }) => {
           likedBy: loggedUser.email,
         },
       ];
+
+      let notifyVal = [
+        ...blogerProfile?.notifications,
+        {
+          userEmail: loggedUser.email,
+          username: loggedUser.username,
+          type: "like",
+        },
+      ];
       likePost(val, id);
+      NotificationFunc(notifyVal, blogerProfile?.uid);
+      NotifyChange(blogerProfile?.uid, true);
     } else {
       let val = data.likes.filter((st) => st.likedBy != loggedUser.email);
       likePost(val, id);
@@ -117,19 +136,37 @@ const BlogDetails = ({ navigation, route }) => {
         commentedBy: loggedUser.username,
       },
     ];
+
+    let notifyVal = [
+      ...blogerProfile?.notifications,
+      {
+        userEmail: loggedUser.email,
+        username: loggedUser.username,
+        type: "comment",
+      },
+    ];
     // setAllComments(val);
 
     commentPost(val, id);
+    NotificationFunc(notifyVal, blogerProfile?.uid);
+    NotifyChange(blogerProfile?.uid, true);
     setComment("");
   };
 
   // console.log("blog", blog);
+
+  const fetchBlogByTag = (tag) => {
+    // Alert.alert(tag);
+
+    navigation.navigate("FetchBlogByTag", { id, tag });
+  };
 
   const seeProfile = () => {
     navigation.navigate("Profile", { user: postedBy });
   };
   return (
     <View style={styles.root}>
+      <StatusBar backgroundColor={COLOR.lightBlue} barStyle="light-content" />
       {loadding ? (
         <LoadingComp loadercolor={COLOR.lightBlue} text="LoadingBLOG..." />
       ) : (
@@ -175,17 +212,23 @@ const BlogDetails = ({ navigation, route }) => {
             </View>
           </ImageBackground>
           {/* likes comment and share */}
-          <View style={styles.countMainContainer}>
-            <CountComp text={blog?.likes?.length} name="heart" />
-            <CountComp text={blog?.comments?.length} name="message" />
-            <CountComp text={blog?.click} name="eye" />
+          <View style={styles.likeandDateWrapper}>
+            <View style={styles.countMainContainer}>
+              <CountComp text={blog?.likes?.length} name="heart" />
+              <CountComp text={blog?.comments?.length} name="message" />
+              <CountComp text={blog?.click} name="eye" />
+            </View>
+
+            <Text style={[styles.time, { marginTop: 0 }]}>
+              {blog?.createdAt.toDate().toLocaleDateString()}
+            </Text>
           </View>
           <View
             style={{
               paddingHorizontal: 15,
             }}
           >
-            <Tag tags={value?.tags} />
+            <Tag tags={value?.tags} onPress={fetchBlogByTag} />
           </View>
 
           <ScrollView style={styles.bottomContentWrapper}>
@@ -301,9 +344,15 @@ const styles = StyleSheet.create({
   bottomContentWrapper: {
     flex: 1,
   },
+  likeandDateWrapper: {
+    paddingHorizontal: 15,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   countMainContainer: {
     flexDirection: "row",
-    paddingHorizontal: 15,
+
     marginVertical: 8,
   },
   countSingleContainer: {

@@ -17,6 +17,8 @@ import PostBlog from "./src/screens/blog/PostBlog";
 import Favorites from "./src/screens/favorite/Favorites";
 import FavoriteContext from "./context/FavoriteContext";
 import SearchedBlog from "./src/screens/blog/SearchedBlog";
+import Notification from "./src/screens/notification/Notification";
+import FetchBlogByTag from "./src/screens/blog/FetchBlogByTag";
 
 const Stack = createNativeStackNavigator();
 
@@ -77,6 +79,11 @@ const App = () => {
                 <Stack.Screen name="PostBlog" component={PostBlog} />
                 <Stack.Screen name="Favorites" component={Favorites} />
                 <Stack.Screen name="SearchedBlog" component={SearchedBlog} />
+                <Stack.Screen name="Notification" component={Notification} />
+                <Stack.Screen
+                  name="FetchBlogByTag"
+                  component={FetchBlogByTag}
+                />
               </Stack.Navigator>
             ) : (
               <Stack.Navigator screenOptions={{ headerShown: false }}>

@@ -49,6 +49,6 @@ const styles = StyleSheet.create({
   profession: {
     fontSize: 12,
     fontFamily: "Poppins-Light",
-    marginTop: -4,
+    marginTop: -5,
   },
 });

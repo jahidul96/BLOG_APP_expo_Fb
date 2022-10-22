@@ -17,6 +17,7 @@ import ProfileComponent from "../../component/ProfileComponent";
 import Feather from "react-native-vector-icons/Feather";
 import {
   getAllBlogs,
+  getBlogWriterProfile,
   getCurrentUser,
   getMyCategorieBlogs,
   getMYFavoritesBlog,
@@ -31,9 +32,13 @@ const Home = ({ navigation }) => {
   const [allBlogs, setAllBlogs] = useState([]);
   const [myCategorieBlogs, setMyCategorieBlogs] = useState([]);
   const { setFavoriteBlogs } = useContext(FavoriteContext);
+  const [myblogerProfile, setmyBlogerProfile] = useState({});
 
   const goToAccount = () => {
     navigation.navigate("Account");
+  };
+  const goToNotification = () => {
+    navigation.navigate("Notification");
   };
 
   useEffect(() => {
@@ -44,6 +49,7 @@ const Home = ({ navigation }) => {
           getAllBlogs(setAllBlogs);
           getMyCategorieBlogs(setMyCategorieBlogs, user.categorie);
           getMYFavoritesBlog(setFavoriteBlogs);
+          getBlogWriterProfile(user.uid, setmyBlogerProfile);
           setTimeout(() => {
             setLoading(false);
           }, 2000);
@@ -71,8 +77,11 @@ const Home = ({ navigation }) => {
         <>
           <View style={homeStyles.profileWrapper}>
             <ProfileComponent onPress={goToAccount} userData={loggedUser} />
-            <TouchableOpacity>
+            <TouchableOpacity onPress={goToNotification}>
               <Feather name="bell" size={22} />
+              {myblogerProfile?.newNotification == true && (
+                <View style={styles.notifyView}></View>
+              )}
             </TouchableOpacity>
           </View>
           <View style={homeStyles.contentWrapper}>
@@ -90,5 +99,14 @@ const styles = StyleSheet.create({
   btn: {
     marginTop: 50,
     marginLeft: 20,
+  },
+  notifyView: {
+    position: "absolute",
+    top: -2,
+    right: 0,
+    width: 10,
+    height: 10,
+    backgroundColor: COLOR.red,
+    borderRadius: 100,
   },
 });

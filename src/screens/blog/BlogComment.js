@@ -17,6 +17,7 @@ import COLOR from "../../COLOR/COLOR";
 import Context from "../../../context/Context";
 import {
   commentPost,
+  getBlogWriterProfile,
   getSingleBlog,
 } from "../../../firebase/fbFirestore/fbFirestore";
 
@@ -28,6 +29,7 @@ const BlogComment = ({ navigation, route }) => {
   const { loggedUser } = useContext(Context);
   const { comments } = blog;
   const scrollViewRef = useRef();
+  const [blogerProfile, setBlogerProfile] = useState({});
 
   const _commentOnPost = (data) => {
     if (!comment) {
@@ -48,7 +50,10 @@ const BlogComment = ({ navigation, route }) => {
 
   useEffect(() => {
     getSingleBlog(setSingleBlog, id);
+    getBlogWriterProfile(loggedUser.uid, setBlogerProfile);
   }, []);
+
+  // console.log('blogerProfile', blogerProfile)
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

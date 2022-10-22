@@ -113,7 +113,11 @@ export const SingleBlog = ({ blog, favorite, onPress }) => {
       <View>
         <Image source={{ uri: value?.featuredImg }} style={styles.imgStyle} />
         <View style={styles.horizontalPadding}>
-          <Text style={styles.blogText}>{value?.description}</Text>
+          <Text style={styles.blogText}>
+            {value?.description.length > 150
+              ? value.description.slice(0, 100) + "..."
+              : value.description}
+          </Text>
           {favorite ? (
             <TouchableOpacity
               style={styles.readmoreBtn}
@@ -158,5 +162,8 @@ const styles = StyleSheet.create({
   readmoreBtn: {},
   readmoreText: {
     fontFamily: "Poppins-Bold",
+    borderBottomColor: COLOR.lightBlue,
+    borderBottomWidth: 1,
+    alignSelf: "flex-start",
   },
 });
