@@ -84,6 +84,8 @@ const Account = ({ navigation }) => {
     });
   };
 
+  // console.log("loggedUser", loggedUser);
+
   const deleteAccount = () => {
     // setUploading(true);
     // const collectionname = "Users";
@@ -150,7 +152,7 @@ const Account = ({ navigation }) => {
           icon={
             <Feather name="chevron-right" size={22} color={COLOR.lightBlue} />
           }
-          onPress={() => navigation.navigate("Profile")}
+          onPress={() => navigation.navigate("Profile", { user: loggedUser })}
         />
         <AccountBtnComp
           text="Post a Blog"

@@ -43,6 +43,7 @@ const BlogDetails = ({ navigation, route }) => {
   const [comment, setComment] = useState();
   const { favoriteBlogs } = useContext(FavoriteContext);
   const [spinner, setSpinner] = useState(false);
+  const { postedBy } = value;
 
   const isLiked = blog?.likes?.filter((s) => s.likedBy == loggedUser?.email);
   const isAlreadyFavorite = favoriteBlogs.filter(
@@ -125,7 +126,7 @@ const BlogDetails = ({ navigation, route }) => {
   // console.log("blog", blog);
 
   const seeProfile = () => {
-    navigation.navigate("Profile");
+    navigation.navigate("Profile", { user: postedBy });
   };
   return (
     <View style={styles.root}>
@@ -157,16 +158,20 @@ const BlogDetails = ({ navigation, route }) => {
                 onPress={seeProfile}
                 userData={blog?.postedBy}
               />
-              <TouchableOpacity
-                style={[styles.likeContainer, { marginTop: 0 }]}
-                onPress={addToFavorite}
-              >
-                <Fontisto
-                  name="favorite"
-                  size={20}
-                  color={isAlreadyFavorite.length > 0 ? COLOR.red : COLOR.white}
-                />
-              </TouchableOpacity>
+              {value.postedBy.uid == loggedUser.uid ? null : (
+                <TouchableOpacity
+                  style={[styles.likeContainer, { marginTop: 0 }]}
+                  onPress={addToFavorite}
+                >
+                  <Fontisto
+                    name="favorite"
+                    size={20}
+                    color={
+                      isAlreadyFavorite.length > 0 ? COLOR.red : COLOR.white
+                    }
+                  />
+                </TouchableOpacity>
+              )}
             </View>
           </ImageBackground>
           {/* likes comment and share */}

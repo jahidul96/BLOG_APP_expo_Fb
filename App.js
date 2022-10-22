@@ -16,6 +16,7 @@ import Profile from "./src/screens/profile/Profile";
 import PostBlog from "./src/screens/blog/PostBlog";
 import Favorites from "./src/screens/favorite/Favorites";
 import FavoriteContext from "./context/FavoriteContext";
+import SearchedBlog from "./src/screens/blog/SearchedBlog";
 
 const Stack = createNativeStackNavigator();
 
@@ -75,6 +76,7 @@ const App = () => {
                 <Stack.Screen name="Profile" component={Profile} />
                 <Stack.Screen name="PostBlog" component={PostBlog} />
                 <Stack.Screen name="Favorites" component={Favorites} />
+                <Stack.Screen name="SearchedBlog" component={SearchedBlog} />
               </Stack.Navigator>
             ) : (
               <Stack.Navigator screenOptions={{ headerShown: false }}>

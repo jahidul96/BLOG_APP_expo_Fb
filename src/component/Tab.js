@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import COLOR from "../COLOR/COLOR";
 import { Width } from "../../utils/Dimensions";
 import { SingleBlog } from "./SingleBlog";
+import SearchComp from "./SearchComp";
 
 const tabName = [
   {
@@ -23,11 +24,11 @@ const tabName = [
   },
   {
     id: 3,
-    title: "By Tags",
+    title: "Search",
   },
 ];
 
-const Tab = ({ allBlogs }) => {
+const Tab = ({ allBlogs, myCategorieBlogs }) => {
   const [tabTitle, setTabTitle] = useState(tabName[0].title);
 
   const selectTab = (item) => {
@@ -74,12 +75,18 @@ const Tab = ({ allBlogs }) => {
             </View>
           ) : tabTitle == "For you" ? (
             <View>
-              <Text>For you</Text>
+              {myCategorieBlogs.length > 0 ? (
+                <>
+                  {myCategorieBlogs.map((blog) => (
+                    <SingleBlog key={blog.id} blog={blog} />
+                  ))}
+                </>
+              ) : (
+                <EmptyTimeline title="No Blog" />
+              )}
             </View>
           ) : (
-            <View>
-              <Text>Other</Text>
-            </View>
+            <SearchComp />
           )}
         </ScrollView>
       </View>

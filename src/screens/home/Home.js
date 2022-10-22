@@ -18,6 +18,7 @@ import Feather from "react-native-vector-icons/Feather";
 import {
   getAllBlogs,
   getCurrentUser,
+  getMyCategorieBlogs,
   getMYFavoritesBlog,
 } from "../../../firebase/fbFirestore/fbFirestore";
 import Context from "../../../context/Context";
@@ -28,6 +29,7 @@ const Home = ({ navigation }) => {
   const { loggedUser, setLoggedUser } = useContext(Context);
   const [loading, setLoading] = useState(true);
   const [allBlogs, setAllBlogs] = useState([]);
+  const [myCategorieBlogs, setMyCategorieBlogs] = useState([]);
   const { setFavoriteBlogs } = useContext(FavoriteContext);
 
   const goToAccount = () => {
@@ -40,6 +42,7 @@ const Home = ({ navigation }) => {
         .then((user) => {
           setLoggedUser(user);
           getAllBlogs(setAllBlogs);
+          getMyCategorieBlogs(setMyCategorieBlogs, user.categorie);
           getMYFavoritesBlog(setFavoriteBlogs);
           setTimeout(() => {
             setLoading(false);
@@ -53,7 +56,7 @@ const Home = ({ navigation }) => {
     return unsubscribe;
   }, []);
 
-  // console.log("favoriteBlog", favoriteBlog);
+  // console.log("myCategorieBlogs", myCategorieBlogs);
 
   return (
     <SafeAreaView style={homeStyles.root}>
@@ -73,7 +76,7 @@ const Home = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           <View style={homeStyles.contentWrapper}>
-            <Tab allBlogs={allBlogs} />
+            <Tab allBlogs={allBlogs} myCategorieBlogs={myCategorieBlogs} />
           </View>
         </>
       )}

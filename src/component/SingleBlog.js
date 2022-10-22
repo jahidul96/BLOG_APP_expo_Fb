@@ -18,12 +18,14 @@ import {
 } from "../../firebase/fbFirestore/fbFirestore";
 import { Timestamp } from "firebase/firestore";
 import FavoriteContext from "../../context/FavoriteContext";
+import Context from "../../context/Context";
 
 export const SingleBlog = ({ blog, favorite, onPress }) => {
-  const [show, setShow] = useState(false);
   const navigation = useNavigation();
   const { favoriteBlogs } = useContext(FavoriteContext);
   const { id, value } = blog;
+  const { loggedUser } = useContext(Context);
+  const { postedBy } = value;
 
   const isAlreadyFavorite = favoriteBlogs.filter(
     (favBlog) => favBlog.value.postId == id
@@ -43,14 +45,12 @@ export const SingleBlog = ({ blog, favorite, onPress }) => {
       deleteFavoriteBlog(isAlreadyFavorite[0].id)
         .then(() => {
           Alert.alert("REMOVED FROM FAVORITE'S!");
-          setShow(false);
         })
         .catch((err) => {
           console.log(err.message);
         });
     } else {
       FavoriteBlog(favData);
-      setShow(false);
       Alert.alert("ADDED TO FAVORITE'S");
     }
   };
@@ -72,7 +72,7 @@ export const SingleBlog = ({ blog, favorite, onPress }) => {
   };
 
   const seeProfile = () => {
-    // navigation.navigate("Profile");
+    navigation.navigate("Profile", { user: postedBy });
   };
   return (
     <View
@@ -86,22 +86,28 @@ export const SingleBlog = ({ blog, favorite, onPress }) => {
         {favorite ? (
           <TouchableOpacity
             style={styles.popupBtn}
-            onPress={() => onPress(blog, setShow)}
+            onPress={() => onPress(blog)}
           >
             <Entypo name="circle-with-minus" size={28} color={COLOR.red} />
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity style={styles.popupBtn} onPress={addtoFavorite}>
-            <Entypo
-              name={
-                isAlreadyFavorite.length > 0
-                  ? "circle-with-minus"
-                  : "circle-with-plus"
-              }
-              size={28}
-              color={isAlreadyFavorite.length > 0 ? COLOR.red : COLOR.lightBlue}
-            />
-          </TouchableOpacity>
+          <>
+            {value?.postedBy?.uid == loggedUser.uid ? null : (
+              <TouchableOpacity style={styles.popupBtn} onPress={addtoFavorite}>
+                <Entypo
+                  name={
+                    isAlreadyFavorite.length > 0
+                      ? "circle-with-minus"
+                      : "circle-with-plus"
+                  }
+                  size={28}
+                  color={
+                    isAlreadyFavorite.length > 0 ? COLOR.red : COLOR.lightBlue
+                  }
+                />
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
       <View>

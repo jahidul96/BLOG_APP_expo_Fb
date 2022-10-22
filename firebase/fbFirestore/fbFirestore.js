@@ -56,9 +56,36 @@ export const getAllBlogs = (setAllBlogs) => {
   });
 };
 
+export const getMyCategorieBlogs = (setMyCategorieBlogs, categorie) => {
+  const cRef = collection(db, "Allblogs");
+  const q = query(cRef, where("categorie", "==", categorie));
+  onSnapshot(q, (querySnapshot) => {
+    let blogs = [];
+    querySnapshot.forEach((doc) => {
+      let data = { value: doc.data(), id: doc.id };
+      blogs.push(data);
+    });
+    setMyCategorieBlogs(blogs);
+  });
+};
+
 export const getSingleBlog = (setSingleBlog, id) => {
   onSnapshot(doc(db, "Allblogs", id), (doc) => {
     setSingleBlog(doc.data());
+  });
+};
+
+export const getMyBlogs = (setMyBlogs, id) => {
+  const cRef = collection(db, "Allblogs");
+  const q = query(cRef, where("myId", "==", id));
+  onSnapshot(q, (querySnapshot) => {
+    let blogs = [];
+    querySnapshot.forEach((doc) => {
+      let data = { value: doc.data(), id: doc.id };
+      blogs.push(data);
+    });
+    setMyBlogs(blogs);
+    // console.log(groups);
   });
 };
 

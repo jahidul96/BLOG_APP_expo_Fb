@@ -17,12 +17,11 @@ const Favorites = () => {
 
   //   console.log("favoriteBlogs", favoriteBlogs);
 
-  const removeFromFavorite = (data, offBtn) => {
+  const removeFromFavorite = (data) => {
     // console.log("data is a single val", data);
 
     deleteFavoriteBlog(data.id)
       .then(() => {
-        offBtn(false);
         Alert.alert("REMOVED FROM FAVORITE'S!");
       })
       .catch((err) => {
@@ -31,7 +30,9 @@ const Favorites = () => {
   };
 
   useEffect(() => {
-    setLoading(false);
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   }, []);
 
   //   console.log("favoriteBlog", favoriteBlogs);
@@ -61,8 +62,8 @@ const Favorites = () => {
                 />
               ))
             ) : (
-              <View>
-                <Text>NO Favorite </Text>
+              <View style={styles.emptyView}>
+                <Text>NO FAVORITE TILL NOW</Text>
               </View>
             )}
           </ScrollView>
@@ -80,5 +81,9 @@ const styles = StyleSheet.create({
   },
   paddingHorizontal: {
     paddingHorizontal: 15,
+  },
+  emptyView: {
+    marginTop: 30,
+    alignItems: "center",
   },
 });

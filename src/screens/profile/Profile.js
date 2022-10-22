@@ -1,26 +1,38 @@
 import {
   Image,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Height, Width } from "../../../utils/Dimensions";
 import COLOR from "../../COLOR/COLOR";
 import Context from "../../../context/Context";
 import { AppBar } from "../../component/Reuse/Reuse";
+import { getMyBlogs } from "../../../firebase/fbFirestore/fbFirestore";
+import { SingleBlog } from "../../component/SingleBlog";
 
 const img = "http://cdn.onlinewebfonts.com/svg/img_550782.png";
 
-const Profile = ({ navigation }) => {
+const Profile = ({ navigation, route }) => {
   const { loggedUser } = useContext(Context);
-  const post = [1, 2, 3];
+  const [myBlogs, setMyBlogs] = useState([]);
+  const { user } = route.params;
+
+  // console.log("user", user);
+
+  useEffect(() => {
+    getMyBlogs(setMyBlogs, user.uid);
+  }, []);
+
+  // console.log("myBlogs", myBlogs);
 
   return (
     <View style={styles.root}>
+      <StatusBar backgroundColor={COLOR.lightBlue} barStyle="light-content" />
       <View style={{ paddingHorizontal: 15 }}>
         <AppBar navigation={navigation} />
       </View>
@@ -31,32 +43,49 @@ const Profile = ({ navigation }) => {
         <View style={styles.profileImageWrapper}>
           <Image
             source={{
-              uri: loggedUser?.profileImg ? loggedUser?.profileImg : img,
+              uri: user?.profileImg ? user?.profileImg : img,
             }}
             style={styles.imgStyle}
           />
-          <Text style={styles.name}>
-            {loggedUser ? loggedUser?.username : "Username"}
-          </Text>
-          <Text style={styles.email}>
-            {loggedUser ? loggedUser?.email : "user@gmail.com"}
-          </Text>
+          <Text style={styles.name}>{user.username}</Text>
+          <Text style={styles.email}>{user.email}</Text>
         </View>
         <View style={styles.postContainer}>
-          <Counter text="Follow" btn />
-          <Counter total={20} text="Post's" />
-          <Counter total={2000} text="Follower's" />
+          {user.uid == loggedUser.uid ? null : <Counter text="Follow" btn />}
+
+          <Counter
+            user={user}
+            loggedUser={loggedUser}
+            total={myBlogs?.length}
+            text="Blog"
+          />
+          <Counter
+            user={user}
+            loggedUser={loggedUser}
+            total={2000}
+            text="Follower's"
+          />
         </View>
-        <Text style={styles.postText}>All POSTS</Text>
-        {/* {post.map((d, i) => (
-          <Blog key={i} />
-        ))} */}
+        <Text style={styles.postText}>
+          {user.uid == loggedUser.uid ? "MY BLOGS" : `${user.username} Blogs`}
+        </Text>
+        <View>
+          {myBlogs.length > 0 ? (
+            myBlogs.map((blog, index) => (
+              <SingleBlog blog={blog} key={index} myBlog={true} />
+            ))
+          ) : (
+            <View>
+              <Text>No Post Till Now</Text>
+            </View>
+          )}
+        </View>
       </ScrollView>
     </View>
   );
 };
 
-const Counter = ({ total, text, btn }) => (
+const Counter = ({ total, text, btn, user, loggedUser }) => (
   <>
     {btn ? (
       <TouchableOpacity
@@ -65,7 +94,14 @@ const Counter = ({ total, text, btn }) => (
         <Text style={[styles.text, { color: COLOR.white }]}>{text}</Text>
       </TouchableOpacity>
     ) : (
-      <View style={styles.counterWrapper}>
+      <View
+        style={[
+          styles.counterWrapper,
+          user.uid == loggedUser.uid && {
+            width: Width / 2.7,
+          },
+        ]}
+      >
         <Text style={styles.total}>{total}</Text>
         <Text style={[styles.text]}>{text}</Text>
       </View>
@@ -80,7 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainwrapper: {
-    paddingVertical: 15,
+    paddingVertical: 10,
   },
   profileImageWrapper: {
     width: "100%",
