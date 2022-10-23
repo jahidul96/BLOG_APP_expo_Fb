@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   StatusBar,
   StyleSheet,
@@ -15,6 +16,8 @@ import {
   LoadingComp,
 } from "../../component/Reuse/Reuse";
 import COLOR from "../../COLOR/COLOR";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../../../firebase/firebase";
 
 const img =
   "https://cdn2.iconfinder.com/data/icons/aami-web-internet/64/aami4-02-512.png";
@@ -23,7 +26,21 @@ const ResetPassword = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const resetPassword = () => {};
+  const resetPassword = () => {
+    setLoading(true);
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        setLoading(false);
+        Alert.alert("CHECK YOUR MAIL BOX! TO RESET PASSWORD!");
+        navigation.goBack();
+      })
+      .catch((error) => {
+        setLoading(false);
+        Alert.alert("SOMETHING WENT WRONG!");
+        navigation.goBack();
+        // ..
+      });
+  };
   return (
     <View style={authStyles.root}>
       <StatusBar barStyle="light-content" backgroundColor={COLOR.orangeRed} />
@@ -46,7 +63,7 @@ const ResetPassword = ({ navigation }) => {
       </View>
       <Input placeholder="Email" setValue={setEmail} />
       {loading ? null : (
-        <ButtonComp text="RESETPASSWORD" onPress={resetPassword} />
+        <ButtonComp text="RESET_PASSWORD" onPress={resetPassword} />
       )}
     </View>
   );
